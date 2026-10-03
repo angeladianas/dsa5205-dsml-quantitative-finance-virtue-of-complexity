@@ -1,0 +1,26 @@
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Byte-compiled / optimized files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Testing & linting caches
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Large dataset files exceeding GitHub 100MB limit
+data/pairB_test_features.csv
+
+# Output caches (can be regenerated via pipeline)
+output/results/
+output/figures/
