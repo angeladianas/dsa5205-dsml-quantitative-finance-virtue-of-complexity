@@ -10,11 +10,9 @@ Demonstrates the timescale separation in low-SNR financial return prediction:
    training loss approaches zero, but test Sharpe decays due to noise interpolation.
 """
 
-import argparse
-from pathlib import Path
 import sys
 import time
-from typing import Dict, List, Tuple
+from pathlib import Path
 
 # Ensure repository root is on sys.path
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -26,7 +24,11 @@ import numpy as np
 import pandas as pd
 
 from src.config import FIGURES_DIR, GLOBAL_SEED, RESULTS_DIR
-from src.metrics import compute_r2_paper, compute_sharpe_uncentered, compute_timing_returns
+from src.metrics import (
+    compute_r2_paper,
+    compute_sharpe_uncentered,
+    compute_timing_returns,
+)
 
 
 class TwoLayerNetwork:
@@ -45,7 +47,7 @@ class TwoLayerNetwork:
         # Second layer weights a in R^m, initialized to small scale a0
         self.a = 0.1 * rng.standard_normal(size=m)
 
-    def forward(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def forward(self, X: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Forward pass: returns predictions y_hat and hidden activations h."""
         # X: (N, d), W: (m, d) -> Z: (N, m)
         Z = X @ self.W.T
@@ -61,7 +63,7 @@ class TwoLayerNetwork:
         errors = y_hat - y  # (N,)
 
         # Compute MSE loss
-        loss = float(0.5 * np.mean(errors ** 2))
+        loss = float(0.5 * np.mean(errors**2))
 
         # Gradient w.r.t second layer weights a:
         # dL/da = (1 / (N * m)) * h^T @ errors
@@ -69,7 +71,7 @@ class TwoLayerNetwork:
 
         # Gradient w.r.t first layer weights W:
         # dL/dZ = (errors[:, None] * a[None, :]) * (1 - h^2) / (N * m)
-        dZ = (errors[:, None] * self.a[None, :]) * (1.0 - h ** 2) / (N * self.m)
+        dZ = (errors[:, None] * self.a[None, :]) * (1.0 - h**2) / (N * self.m)
         grad_W = dZ.T @ X  # (m, d)
 
         # Parameter updates
@@ -93,7 +95,7 @@ def generate_task4_data(
     d: int = 50,
     snr: float = 0.05,
     seed: int = GLOBAL_SEED,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Generate financial return data with low signal-to-noise ratio."""
     rng = np.random.default_rng(seed)
     N = t_tr + t_te
@@ -115,9 +117,7 @@ def generate_task4_data(
     return X[:t_tr], y[:t_tr], X[t_tr:], y[t_tr:]
 
 
-def run_task4_experiment(
-    epochs: int = 1000, lr: float = 0.08, m_hidden: int = 150
-) -> pd.DataFrame:
+def run_task4_experiment(epochs: int = 1000, lr: float = 0.08, m_hidden: int = 150) -> pd.DataFrame:
     """Train two-layer neural network across epochs and track dynamical decoupling."""
     print("================================================================")
     print("TASK 4: DYNAMICAL DECOUPLING EXPERIMENT (Montanari & Urbani 2025)")
@@ -129,7 +129,7 @@ def run_task4_experiment(
 
     net = TwoLayerNetwork(d=X_tr.shape[1], m=m_hidden, lr=lr)
 
-    history: List[Dict[str, float]] = []
+    history: list[dict[str, float]] = []
 
     for epoch in range(1, epochs + 1):
         tr_loss = net.train_step(X_tr, y_tr)
@@ -142,14 +142,16 @@ def run_task4_experiment(
             te_r2 = compute_r2_paper(y_te, y_pred_te)
             l1_norm = net.second_layer_l1_norm
 
-            history.append({
-                "epoch": epoch,
-                "train_loss": tr_loss,
-                "test_mse": te_mse,
-                "test_sharpe": te_sharpe,
-                "test_r2": te_r2,
-                "second_layer_l1": l1_norm,
-            })
+            history.append(
+                {
+                    "epoch": epoch,
+                    "train_loss": tr_loss,
+                    "test_mse": te_mse,
+                    "test_sharpe": te_sharpe,
+                    "test_r2": te_r2,
+                    "second_layer_l1": l1_norm,
+                }
+            )
 
     df_hist = pd.DataFrame(history)
 
@@ -169,14 +171,18 @@ def plot_task4_dynamics(df: pd.DataFrame) -> None:
     """Render publication figure showing the three dynamical learning regimes."""
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
-    plt.style.use("seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default")
-    plt.rcParams.update({
-        "font.family": "serif",
-        "font.size": 11,
-        "axes.labelsize": 12,
-        "axes.titlesize": 13,
-        "figure.dpi": 300,
-    })
+    plt.style.use(
+        "seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default"
+    )
+    plt.rcParams.update(
+        {
+            "font.family": "serif",
+            "font.size": 11,
+            "axes.labelsize": 12,
+            "axes.titlesize": 13,
+            "figure.dpi": 300,
+        }
+    )
 
     fig, ax1 = plt.subplots(figsize=(9, 6))
 
@@ -185,9 +191,19 @@ def plot_task4_dynamics(df: pd.DataFrame) -> None:
     color_l1 = "#2A9D8F"
 
     # Plot Out-of-Sample Sharpe Ratio on left axis
-    ax1.plot(df["epoch"], df["test_sharpe"], color=color_sharpe, linewidth=2.5, label="Out-of-Sample Sharpe Ratio")
+    ax1.plot(
+        df["epoch"],
+        df["test_sharpe"],
+        color=color_sharpe,
+        linewidth=2.5,
+        label="Out-of-Sample Sharpe Ratio",
+    )
     ax1.set_xlabel("Training Epochs (Gradient Descent Time $t$)")
-    ax1.set_ylabel("Out-of-Sample Sharpe Ratio $\mathrm{SR}$", color=color_sharpe, fontweight="bold")
+    ax1.set_ylabel(
+        r"Out-of-Sample Sharpe Ratio $\mathrm{SR}$",
+        color=color_sharpe,
+        fontweight="bold",
+    )
     ax1.tick_params(axis="y", labelcolor=color_sharpe)
 
     # Find peak epoch
@@ -195,19 +211,51 @@ def plot_task4_dynamics(df: pd.DataFrame) -> None:
     t_star = int(peak_row["epoch"])
     sr_peak = peak_row["test_sharpe"]
 
-    ax1.axvline(x=t_star, color="#E76F51", linestyle="--", linewidth=2.0, label=f"Optimal Early Stopping ($t^* = {t_star}$)")
+    ax1.axvline(
+        x=t_star,
+        color="#E76F51",
+        linestyle="--",
+        linewidth=2.0,
+        label=f"Optimal Early Stopping ($t^* = {t_star}$)",
+    )
     ax1.scatter([t_star], [sr_peak], color="#E76F51", s=80, zorder=5)
 
     # Create twin axis for Train Loss and L1 complexity
     ax2 = ax1.twinx()
-    ax2.plot(df["epoch"], df["train_loss"], color=color_loss, linestyle=":", linewidth=2.0, label="Training Loss (Empirical Risk)")
-    ax2.plot(df["epoch"], df["second_layer_l1"], color=color_l1, linestyle="-.", linewidth=2.0, label="Weight Norm $\|W^{(2)}\|_1$ (Complexity)")
+    ax2.plot(
+        df["epoch"],
+        df["train_loss"],
+        color=color_loss,
+        linestyle=":",
+        linewidth=2.0,
+        label="Training Loss (Empirical Risk)",
+    )
+    ax2.plot(
+        df["epoch"],
+        df["second_layer_l1"],
+        color=color_l1,
+        linestyle="-.",
+        linewidth=2.0,
+        label=r"Weight Norm $\|W^{(2)}\|_1$ (Complexity)",
+    )
     ax2.set_ylabel("Training Loss & Parameter Norm", color="#333333", fontweight="bold")
     ax2.grid(False)
 
     # Shaded regime annotations
-    ax1.axvspan(0, t_star, alpha=0.08, color="#2A9D8F", label="Regime 1: Fast Feature Learning ($t \sim \mathcal{O}(1)$)")
-    ax1.axvspan(t_star, df["epoch"].max(), alpha=0.08, color="#E63946", label="Regime 2: Noise Overfitting / Feature Unlearning ($t \sim \mathcal{O}(m)$)")
+    ax1.axvspan(
+        0,
+        t_star,
+        alpha=0.08,
+        color="#2A9D8F",
+        label=r"Regime 1: Fast Feature Learning ($t \sim \mathcal{O}(1)$)",
+    )
+    ax1.axvspan(
+        t_star,
+        df["epoch"].max(),
+        alpha=0.08,
+        color="#E63946",
+        label=r"Regime 2: Noise Overfitting / Feature Unlearning ($t \sim \mathcal{O}(m)$)",
+    )
 
     # Combine legends
     lines1, labels1 = ax1.get_legend_handles_labels()
@@ -215,8 +263,9 @@ def plot_task4_dynamics(df: pd.DataFrame) -> None:
     ax1.legend(lines1 + lines2, labels1 + labels2, loc="upper right", frameon=True, fontsize=9)
 
     plt.title(
-        r"\textbf{Dynamical Decoupling in Low-SNR Financial Return Prediction}" + "\n" +
-        r"Feature Learning vs. Overfitting (Montanari \& Urbani 2025)",
+        r"\textbf{Dynamical Decoupling in Low-SNR Financial Return Prediction}"
+        + "\n"
+        + r"Feature Learning vs. Overfitting (Montanari \& Urbani 2025)",
         fontsize=13,
         pad=12,
     )
@@ -228,7 +277,7 @@ def plot_task4_dynamics(df: pd.DataFrame) -> None:
     fig.savefig(fig_path_pdf)
     plt.close(fig)
 
-    print(f"Generated Task 4 figures:")
+    print("Generated Task 4 figures:")
     print(f"  - {fig_path_png}")
     print(f"  - {fig_path_pdf}")
     print(f"  Peak Sharpe Ratio: {sr_peak:.4f} achieved at epoch t* = {t_star}")

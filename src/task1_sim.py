@@ -10,9 +10,9 @@ Results are saved to transparent, human-readable CSV files in output/results/.
 
 import argparse
 import sys
-from pathlib import Path
 import time
-from typing import Any, Dict, List, Tuple
+from pathlib import Path
+from typing import Any
 
 # Ensure repository root is on sys.path for direct script execution
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -41,7 +41,7 @@ def generate_dgp_run_data(
     b_star: float,
     sigma_eps: float,
     rng: np.random.Generator,
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     r"""Generate synthetic market data under the true Data Generating Process (DGP).
 
     Model:
@@ -89,10 +89,10 @@ def run_single_simulation(
     c_dgp: float,
     b_star: float,
     sigma_eps: float,
-    cq_grid: List[float],
-    z_grid: List[float],
+    cq_grid: list[float],
+    z_grid: list[float],
     rng: np.random.Generator,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Execute a single Monte Carlo run across all cq and z grid points.
 
     Implements misspecification via partial observability: columns of S are
@@ -112,7 +112,7 @@ def run_single_simulation(
     Returns:
         List of result record dictionaries for each (cq, z) pair and optimal z*.
     """
-    p_total = int(round(c_dgp * t_tr))
+    p_total = round(c_dgp * t_tr)
     S, R, _ = generate_dgp_run_data(
         t_tr=t_tr,
         t_te=t_te,
@@ -132,10 +132,10 @@ def run_single_simulation(
     S_te = S_permuted[t_tr : t_tr + t_te, :]
     y_te = R[t_tr : t_tr + t_te]
 
-    records: List[Dict[str, Any]] = []
+    records: list[dict[str, Any]] = []
 
     for cq in cq_grid:
-        p1 = max(1, int(round(cq * t_tr)))
+        p1 = max(1, round(cq * t_tr))
         q = float(p1 / p_total)
 
         # Observe only the first P_1 permuted columns
@@ -147,47 +147,47 @@ def run_single_simulation(
 
         # 1. Evaluate user-specified shrinkage grid z
         for z in z_grid:
-            beta_hat = solve_ridge_svd(
-                X=X_tr, y=y_tr, z=float(z), t_tr=t_tr, svd_cache=svd_cache
-            )
+            beta_hat = solve_ridge_svd(X=X_tr, y=y_tr, z=float(z), t_tr=t_tr, svd_cache=svd_cache)
             y_pred = X_te @ beta_hat
             r_pi = compute_timing_returns(y_te, y_pred)
 
-            records.append({
+            records.append(
+                {
+                    "run_id": run_id,
+                    "cq": float(cq),
+                    "q": q,
+                    "p1": p1,
+                    "z": float(z),
+                    "is_optimal_z": False,
+                    "r2_paper": compute_r2_paper(y_te, y_pred),
+                    "expected_return": float(np.mean(r_pi)),
+                    "sharpe": compute_sharpe_uncentered(r_pi),
+                    "sharpe_var": compute_sharpe_var(r_pi),
+                    "param_norm": compute_param_norm(beta_hat),
+                }
+            )
+
+        # 2. Evaluate theoretical optimal shrinkage z*(q) (KMZ Prop. 6(ii))
+        z_opt = compute_optimal_shrinkage_theory(c_dgp=c_dgp, b_star=b_star, q=q)
+        beta_opt = solve_ridge_svd(X=X_tr, y=y_tr, z=z_opt, t_tr=t_tr, svd_cache=svd_cache)
+        y_pred_opt = X_te @ beta_opt
+        r_pi_opt = compute_timing_returns(y_te, y_pred_opt)
+
+        records.append(
+            {
                 "run_id": run_id,
                 "cq": float(cq),
                 "q": q,
                 "p1": p1,
-                "z": float(z),
-                "is_optimal_z": False,
-                "r2_paper": compute_r2_paper(y_te, y_pred),
-                "expected_return": float(np.mean(r_pi)),
-                "sharpe": compute_sharpe_uncentered(r_pi),
-                "sharpe_var": compute_sharpe_var(r_pi),
-                "param_norm": compute_param_norm(beta_hat),
-            })
-
-        # 2. Evaluate theoretical optimal shrinkage z*(q) (KMZ Prop. 6(ii))
-        z_opt = compute_optimal_shrinkage_theory(c_dgp=c_dgp, b_star=b_star, q=q)
-        beta_opt = solve_ridge_svd(
-            X=X_tr, y=y_tr, z=z_opt, t_tr=t_tr, svd_cache=svd_cache
+                "z": z_opt,
+                "is_optimal_z": True,
+                "r2_paper": compute_r2_paper(y_te, y_pred_opt),
+                "expected_return": float(np.mean(r_pi_opt)),
+                "sharpe": compute_sharpe_uncentered(r_pi_opt),
+                "sharpe_var": compute_sharpe_var(r_pi_opt),
+                "param_norm": compute_param_norm(beta_opt),
+            }
         )
-        y_pred_opt = X_te @ beta_opt
-        r_pi_opt = compute_timing_returns(y_te, y_pred_opt)
-
-        records.append({
-            "run_id": run_id,
-            "cq": float(cq),
-            "q": q,
-            "p1": p1,
-            "z": z_opt,
-            "is_optimal_z": True,
-            "r2_paper": compute_r2_paper(y_te, y_pred_opt),
-            "expected_return": float(np.mean(r_pi_opt)),
-            "sharpe": compute_sharpe_uncentered(r_pi_opt),
-            "sharpe_var": compute_sharpe_var(r_pi_opt),
-            "param_norm": compute_param_norm(beta_opt),
-        })
 
     return records
 
@@ -195,7 +195,7 @@ def run_single_simulation(
 def run_task1_simulation(
     n_runs: int = TASK1_PARAMS["n_runs"],
     seed: int = GLOBAL_SEED,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Execute the full Monte Carlo simulation for Task 1 and save CSV caches.
 
     Args:
@@ -207,17 +207,23 @@ def run_task1_simulation(
             df_runs: DataFrame of all raw individual simulation records.
             df_summary: DataFrame of aggregated means and standard errors across runs.
     """
-    print(f"================================================================")
-    print(f"Starting Task 1 Simulation (Misspecified Ridge)")
-    print(f"Runs: {n_runs} | Seed: {seed} | T_tr: {TASK1_PARAMS['T_tr']} | T_te: {TASK1_PARAMS['T_te']}")
-    print(f"DGP Complexity c: {TASK1_PARAMS['c_dgp']} | Signal Strength b*: {TASK1_PARAMS['b_star']}")
-    print(f"Observed cq points: {len(TASK1_PARAMS['cq_grid'])} | Shrinkage z points: {len(TASK1_PARAMS['z_grid'])}")
-    print(f"================================================================")
+    print("================================================================")
+    print("Starting Task 1 Simulation (Misspecified Ridge)")
+    print(
+        f"Runs: {n_runs} | Seed: {seed} | T_tr: {TASK1_PARAMS['T_tr']} | T_te: {TASK1_PARAMS['T_te']}"
+    )
+    print(
+        f"DGP Complexity c: {TASK1_PARAMS['c_dgp']} | Signal Strength b*: {TASK1_PARAMS['b_star']}"
+    )
+    print(
+        f"Observed cq points: {len(TASK1_PARAMS['cq_grid'])} | Shrinkage z points: {len(TASK1_PARAMS['z_grid'])}"
+    )
+    print("================================================================")
 
     start_time = time.time()
     rng = np.random.default_rng(seed)
 
-    all_records: List[Dict[str, Any]] = []
+    all_records: list[dict[str, Any]] = []
 
     for r in range(1, n_runs + 1):
         r_records = run_single_simulation(
@@ -245,7 +251,10 @@ def run_task1_simulation(
     agg_dict = {}
     for m in metrics:
         agg_dict[f"{m}_mean"] = (m, "mean")
-        agg_dict[f"{m}_sem"] = (m, lambda x: float(np.std(x, ddof=1) / np.sqrt(len(x))) if len(x) > 1 else 0.0)
+        agg_dict[f"{m}_sem"] = (
+            m,
+            lambda x: float(np.std(x, ddof=1) / np.sqrt(len(x))) if len(x) > 1 else 0.0,
+        )
 
     df_summary = (
         df_runs.groupby(group_cols, as_index=False)
@@ -266,7 +275,7 @@ def run_task1_simulation(
     print(f"Simulation completed in {total_time:.2f} seconds!")
     print(f"Saved raw runs to: {runs_csv_path} ({len(df_runs):,} rows)")
     print(f"Saved summary to:  {summary_csv_path} ({len(df_summary):,} rows)")
-    print(f"================================================================")
+    print("================================================================")
 
     return df_runs, df_summary
 

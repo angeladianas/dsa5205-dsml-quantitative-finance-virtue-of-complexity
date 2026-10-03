@@ -1,0 +1,30 @@
+[project]
+name = "dsa5205-dsml-quantitative-finance-virtue-of-complexity"
+version = "0.1.0"
+description = "DSA5205 Quantitative Finance - Virtue of Complexity in Machine Learning"
+readme = "README.md"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E4",
+    "E7",
+    "E9",
+    "F",
+    "I",
+    "UP",
+    "RUF",
+    "SIM",
+    "W",
+]
+ignore = [
+    "E501",  # Line length is handled by ruff format
+    "E402",  # Module level import not at top of file (needed for sys.path insertion in standalone scripts)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]

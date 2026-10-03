@@ -1,10 +1,9 @@
 """Unit tests verifying numerical stability and equivalence of src/solvers.py."""
 
 import numpy as np
-import pytest
 from sklearn.linear_model import Ridge
 
-from src.solvers import solve_ridge_svd, batch_solve_ridge_svd
+from src.solvers import batch_solve_ridge_svd, solve_ridge_svd
 
 
 def test_svd_solver_ols_equivalence_underparameterized():

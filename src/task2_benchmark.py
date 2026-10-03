@@ -12,11 +12,11 @@ Theoretical Focus:
 """
 
 import argparse
-from pathlib import Path
 import sys
 import time
-from typing import Any, Dict, List, Tuple
 import warnings
+from pathlib import Path
+from typing import Any
 
 # Ensure repository root is on sys.path
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -52,10 +52,10 @@ def run_single_lasso_simulation(
     c_dgp: float,
     b_star: float,
     sigma_eps: float,
-    cq_grid: List[float],
-    alphas: List[float],
+    cq_grid: list[float],
+    alphas: list[float],
     rng: np.random.Generator,
-) -> List[Dict[str, Any]]:
+) -> list[dict[str, Any]]:
     """Run a single Monte Carlo trial evaluating Lasso across all cq and alpha values.
 
     Uses identical DGP data and column permutation as Task 1.
@@ -74,7 +74,7 @@ def run_single_lasso_simulation(
     Returns:
         List of result dictionaries for each (cq, alpha) combination.
     """
-    p_total = int(round(c_dgp * t_tr))
+    p_total = round(c_dgp * t_tr)
     S, R, _ = generate_dgp_run_data(
         t_tr=t_tr,
         t_te=t_te,
@@ -93,19 +93,17 @@ def run_single_lasso_simulation(
     S_te = S_permuted[t_tr : t_tr + t_te, :]
     y_te = R[t_tr : t_tr + t_te]
 
-    records: List[Dict[str, Any]] = []
+    records: list[dict[str, Any]] = []
 
     for cq in cq_grid:
-        p1 = max(1, int(round(cq * t_tr)))
+        p1 = max(1, round(cq * t_tr))
         q = float(p1 / p_total)
 
         X_tr = S_tr[:, :p1]
         X_te = S_te[:, :p1]
 
         # Compute full Lasso solution path in one fast C-level coordinate descent pass
-        alphas_out, coefs, _ = lasso_path(
-            X_tr, y_tr, alphas=alphas, max_iter=2000, tol=1e-3
-        )
+        alphas_out, coefs, _ = lasso_path(X_tr, y_tr, alphas=alphas, max_iter=2000, tol=1e-3)
         # coefs has shape (p1, len(alphas))
 
         for idx, alpha_val in enumerate(alphas_out):
@@ -116,20 +114,22 @@ def run_single_lasso_simulation(
             n_nonzero = int(np.sum(beta_hat != 0))
             sparsity_ratio = float(n_nonzero / p1)
 
-            records.append({
-                "run_id": run_id,
-                "cq": float(cq),
-                "q": q,
-                "p1": p1,
-                "alpha": float(alpha_val),
-                "r2_paper": compute_r2_paper(y_te, y_pred),
-                "expected_return": float(np.mean(r_pi)),
-                "sharpe": compute_sharpe_uncentered(r_pi),
-                "sharpe_var": compute_sharpe_var(r_pi),
-                "param_norm": compute_param_norm(beta_hat),
-                "n_nonzero": n_nonzero,
-                "sparsity_ratio": sparsity_ratio,
-            })
+            records.append(
+                {
+                    "run_id": run_id,
+                    "cq": float(cq),
+                    "q": q,
+                    "p1": p1,
+                    "alpha": float(alpha_val),
+                    "r2_paper": compute_r2_paper(y_te, y_pred),
+                    "expected_return": float(np.mean(r_pi)),
+                    "sharpe": compute_sharpe_uncentered(r_pi),
+                    "sharpe_var": compute_sharpe_var(r_pi),
+                    "param_norm": compute_param_norm(beta_hat),
+                    "n_nonzero": n_nonzero,
+                    "sparsity_ratio": sparsity_ratio,
+                }
+            )
 
     return records
 
@@ -137,8 +137,8 @@ def run_single_lasso_simulation(
 def run_task2_simulation(
     n_runs: int = TASK1_PARAMS["n_runs"],
     seed: int = GLOBAL_SEED,
-    alphas: List[float] = LASSO_ALPHAS,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    alphas: list[float] = LASSO_ALPHAS,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Execute the full Monte Carlo simulation for Task 2 and export CSV caches.
 
     Args:
@@ -158,7 +158,7 @@ def run_task2_simulation(
     start_time = time.time()
     rng = np.random.default_rng(seed)
 
-    all_records: List[Dict[str, Any]] = []
+    all_records: list[dict[str, Any]] = []
 
     for r in range(1, n_runs + 1):
         r_records = run_single_lasso_simulation(
@@ -200,9 +200,7 @@ def run_task2_simulation(
         )
 
     df_summary = (
-        df_runs.groupby(group_cols, as_index=False)
-        .agg(**agg_dict)
-        .sort_values(by=["alpha", "cq"])
+        df_runs.groupby(group_cols, as_index=False).agg(**agg_dict).sort_values(by=["alpha", "cq"])
     )
 
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)

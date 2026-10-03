@@ -11,9 +11,8 @@ Generates exact submission files:
 - output/predictions/A0327258X_predictions_C.csv
 """
 
-from pathlib import Path
 import sys
-from typing import Dict, Tuple
+from pathlib import Path
 
 # Ensure repository root is on sys.path
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -26,10 +25,14 @@ from sklearn.decomposition import PCA
 from sklearn.linear_model import Lasso, Ridge
 
 from src.config import DATA_DIR, PREDICTIONS_DIR, RESULTS_DIR, STUDENT_ID
-from src.metrics import compute_r2_paper, compute_sharpe_uncentered, compute_timing_returns
+from src.metrics import (
+    compute_r2_paper,
+    compute_sharpe_uncentered,
+    compute_timing_returns,
+)
 
 
-def load_dataset_pair(name: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def load_dataset_pair(name: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Load train and test CSVs for a given dataset letter ('A', 'B', or 'C')."""
     train_path = DATA_DIR / f"pair{name}_train.csv"
     test_path = DATA_DIR / f"pair{name}_test_features.csv"
@@ -44,9 +47,9 @@ def load_dataset_pair(name: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
 
 def evaluate_dataset_cv(
     X: np.ndarray, y: np.ndarray, n_splits: int = 5
-) -> Dict[str, Dict[str, float]]:
+) -> dict[str, dict[str, float]]:
     """Perform 5-fold Purged Block Time-Series Cross-Validation across candidate models."""
-    T_tr, P = X.shape
+    T_tr, _ = X.shape
     fold_size = T_tr // n_splits
 
     models = {
@@ -99,19 +102,31 @@ def evaluate_dataset_cv(
     return cv_summary
 
 
-def generate_task3_predictions() -> Dict[str, Path]:
+def generate_task3_predictions() -> dict[str, Path]:
     """Train winning models on full train datasets and export prediction CSVs."""
     PREDICTIONS_DIR.mkdir(parents=True, exist_ok=True)
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    prediction_files: Dict[str, Path] = {}
+    prediction_files: dict[str, Path] = {}
     cv_records = []
 
     # Selected winning configurations based on extensive cross-validation
     winning_configs = {
-        "A": {"model": "Ridge", "params": {"z": 10.0}, "rationale": "c=1.0 interpolation boundary; aggressive ridge shrinkage controls variance."},
-        "B": {"model": "Lasso", "params": {"alpha": 0.08}, "rationale": "c=10.0 with small T=240; coordinate sparsity filters dominant predictors."},
-        "C": {"model": "PCA_Ridge", "params": {"k": 10, "alpha": 0.1}, "rationale": "c=5.0; principal component projection compresses 1800 features to top 10 factors."},
+        "A": {
+            "model": "Ridge",
+            "params": {"z": 10.0},
+            "rationale": "c=1.0 interpolation boundary; aggressive ridge shrinkage controls variance.",
+        },
+        "B": {
+            "model": "Lasso",
+            "params": {"alpha": 0.08},
+            "rationale": "c=10.0 with small T=240; coordinate sparsity filters dominant predictors.",
+        },
+        "C": {
+            "model": "PCA_Ridge",
+            "params": {"k": 10, "alpha": 0.1},
+            "rationale": "c=5.0; principal component projection compresses 1800 features to top 10 factors.",
+        },
     }
 
     print("================================================================")
@@ -133,14 +148,16 @@ def generate_task3_predictions() -> Dict[str, Path]:
         # Run CV benchmark
         cv_res = evaluate_dataset_cv(X_tr, y_tr)
         for m_name, vals in cv_res.items():
-            cv_records.append({
-                "dataset": name,
-                "model": m_name,
-                "cv_sharpe": vals["mean_sharpe"],
-                "cv_r2": vals["mean_r2"],
-            })
+            cv_records.append(
+                {
+                    "dataset": name,
+                    "model": m_name,
+                    "cv_sharpe": vals["mean_sharpe"],
+                    "cv_r2": vals["mean_r2"],
+                }
+            )
 
-        print(f"\n--- Dataset {name} (Train: {T_tr}x{P}, Test: {T_te}x{P}, c = {P/T_tr:.2f}) ---")
+        print(f"\n--- Dataset {name} (Train: {T_tr}x{P}, Test: {T_te}x{P}, c = {P / T_tr:.2f}) ---")
         cfg = winning_configs[name]
         print(f"  Selected Model: {cfg['model']} with {cfg['params']}")
         print(f"  Theoretical Rationale: {cfg['rationale']}")
@@ -156,7 +173,9 @@ def generate_task3_predictions() -> Dict[str, Path]:
             model = Lasso(alpha=alpha_val, fit_intercept=False, max_iter=3000, tol=1e-3)
             model.fit(X_tr, y_tr)
             y_hat = model.predict(X_te)
-            print(f"  Active features selected: {np.sum(model.coef_ != 0)} / {P} ({np.mean(model.coef_ != 0)*100:.1f}%)")
+            print(
+                f"  Active features selected: {np.sum(model.coef_ != 0)} / {P} ({np.mean(model.coef_ != 0) * 100:.1f}%)"
+            )
         elif cfg["model"] == "PCA_Ridge":
             k_val = cfg["params"]["k"]
             alpha_val = cfg["params"]["alpha"]
@@ -166,13 +185,17 @@ def generate_task3_predictions() -> Dict[str, Path]:
             model = Ridge(alpha=alpha_val * T_tr, fit_intercept=False)
             model.fit(X_tr_pca, y_tr)
             y_hat = model.predict(X_te_pca)
-            print(f"  Explained variance by top {k_val} PCs: {np.sum(pca.explained_variance_ratio_)*100:.2f}%")
+            print(
+                f"  Explained variance by top {k_val} PCs: {np.sum(pca.explained_variance_ratio_) * 100:.2f}%"
+            )
 
         # Format output dataframe
-        df_pred = pd.DataFrame({
-            "t": t_test,
-            "yhat": y_hat,
-        })
+        df_pred = pd.DataFrame(
+            {
+                "t": t_test,
+                "yhat": y_hat,
+            }
+        )
 
         # Save to exact required filename
         pred_filename = f"{STUDENT_ID}_predictions_{name}.csv"
@@ -181,7 +204,9 @@ def generate_task3_predictions() -> Dict[str, Path]:
         prediction_files[name] = pred_path
 
         print(f"  Exported predictions: {pred_path} ({len(df_pred)} rows)")
-        print(f"  Preview: yhat mean={np.mean(y_hat):.5f}, std={np.std(y_hat):.5f}, min={np.min(y_hat):.5f}, max={np.max(y_hat):.5f}")
+        print(
+            f"  Preview: yhat mean={np.mean(y_hat):.5f}, std={np.std(y_hat):.5f}, min={np.min(y_hat):.5f}, max={np.max(y_hat):.5f}"
+        )
 
     # Save CV tournament summary table
     df_cv_all = pd.DataFrame(cv_records)

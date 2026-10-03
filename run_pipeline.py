@@ -14,10 +14,10 @@ Usage:
 """
 
 import argparse
-from pathlib import Path
 import subprocess
 import sys
 import time
+from pathlib import Path
 
 # Ensure repository root is on sys.path
 REPO_ROOT = Path(__file__).resolve().parent
@@ -39,7 +39,7 @@ def run_command(cmd: list[str], description: str) -> bool:
     print(f"\n[RUNNING] {description}...")
     start = time.time()
     try:
-        result = subprocess.run(cmd, cwd=REPO_ROOT, check=True)
+        subprocess.run(cmd, cwd=REPO_ROOT, check=True)
         elapsed = time.time() - start
         print(f"[SUCCESS] {description} completed in {elapsed:.2f}s")
         return True
@@ -58,9 +58,7 @@ def run_task_1(quick: bool = False) -> bool:
 
     if not run_command(cmd_sim, f"Task 1 Monte Carlo Simulation (M={runs})"):
         return False
-    if not run_command(cmd_plot, "Task 1 Figure Generation"):
-        return False
-    return True
+    return run_command(cmd_plot, "Task 1 Figure Generation")
 
 
 def run_task_2() -> bool:
@@ -71,9 +69,7 @@ def run_task_2() -> bool:
 
     if not run_command(cmd_bench, "Task 2 Lasso Benchmark Sweep"):
         return False
-    if not run_command(cmd_plot, "Task 2 Comparison Figure Generation"):
-        return False
-    return True
+    return run_command(cmd_plot, "Task 2 Comparison Figure Generation")
 
 
 def run_task_3() -> bool:
@@ -106,7 +102,8 @@ def print_summary() -> None:
         p = PREDICTIONS_DIR / f"{STUDENT_ID}_predictions_{name}.csv"
         if p.exists():
             size_kb = p.stat().st_size / 1024
-            line_count = sum(1 for _ in open(p)) - 1
+            with open(p) as f:
+                line_count = sum(1 for _ in f) - 1
             print(f"   [OK] {p.name:<30} ({size_kb:.1f} KB, {line_count} predictions)")
         else:
             print(f"   [MISSING] {p.name}")
@@ -128,13 +125,22 @@ def print_summary() -> None:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(
-        description="Master execution pipeline for DSA5205 Project 1."
+    parser = argparse.ArgumentParser(description="Master execution pipeline for DSA5205 Project 1.")
+    parser.add_argument(
+        "--all", action="store_true", help="Run entire pipeline (Tasks 1-4 + tests)"
     )
-    parser.add_argument("--all", action="store_true", help="Run entire pipeline (Tasks 1-4 + tests)")
-    parser.add_argument("--task", type=int, choices=[1, 2, 3, 4], help="Run specific task (1, 2, 3, or 4)")
+    parser.add_argument(
+        "--task",
+        type=int,
+        choices=[1, 2, 3, 4],
+        help="Run specific task (1, 2, 3, or 4)",
+    )
     parser.add_argument("--test", action="store_true", help="Run pytest verification suite")
-    parser.add_argument("--quick", action="store_true", help="Run Task 1 with M=5 runs for fast smoke testing")
+    parser.add_argument(
+        "--quick",
+        action="store_true",
+        help="Run Task 1 with M=5 runs for fast smoke testing",
+    )
 
     args = parser.parse_args()
 

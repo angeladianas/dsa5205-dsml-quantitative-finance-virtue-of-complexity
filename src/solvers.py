@@ -4,11 +4,12 @@ Strictly adheres to the "Never Invert X^T X" rule to ensure complete numerical
 stability near the interpolation threshold (c_q \approx 1) and under ridgeless OLS (z = 0).
 """
 
-from typing import Dict, Optional, Sequence, Tuple
+from collections.abc import Sequence
+
 import numpy as np
 
 
-def compute_compact_svd(X: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def compute_compact_svd(X: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Compute compact Singular Value Decomposition X = U * diag(s) * Vt.
 
     Args:
@@ -29,7 +30,7 @@ def solve_ridge_svd(
     y: np.ndarray,
     z: float,
     t_tr: int,
-    svd_cache: Optional[Tuple[np.ndarray, np.ndarray, np.ndarray]] = None,
+    svd_cache: tuple[np.ndarray, np.ndarray, np.ndarray] | None = None,
     rcond: float = 1e-12,
 ) -> np.ndarray:
     r"""Solve ridge regression or ridgeless Moore-Penrose OLS using compact SVD.
@@ -68,7 +69,7 @@ def solve_ridge_svd(
         filter_weights = np.where(s > rcond, 1.0 / s, 0.0)
     else:
         # Ridge shrinkage weights: s_i / (s_i^2 + z * T_tr)
-        filter_weights = s / (s ** 2 + z * float(t_tr))
+        filter_weights = s / (s**2 + z * float(t_tr))
 
     # \hat{\beta} = V * (filter_weights * Uy)
     # Vt has shape (k, P_1), so Vt.T has shape (P_1, k)
@@ -82,7 +83,7 @@ def batch_solve_ridge_svd(
     z_grid: Sequence[float],
     t_tr: int,
     rcond: float = 1e-12,
-) -> Dict[float, np.ndarray]:
+) -> dict[float, np.ndarray]:
     r"""Compute ridge solutions for an entire grid of regularization values z.
 
     Computes the compact SVD only once, then evaluates each z in z_grid
@@ -99,7 +100,7 @@ def batch_solve_ridge_svd(
         Dictionary mapping each z to its estimated coefficient vector \hat{\beta}(z).
     """
     svd_cache = compute_compact_svd(X)
-    solutions: Dict[float, np.ndarray] = {}
+    solutions: dict[float, np.ndarray] = {}
     for z in z_grid:
         solutions[float(z)] = solve_ridge_svd(
             X=X, y=y, z=float(z), t_tr=t_tr, svd_cache=svd_cache, rcond=rcond

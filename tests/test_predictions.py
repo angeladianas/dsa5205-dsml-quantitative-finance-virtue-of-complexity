@@ -8,7 +8,6 @@ Ensures strict compliance with grading criteria:
 - Zero NaNs, Infs, or empty fields
 """
 
-from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
@@ -16,11 +15,14 @@ import pytest
 from src.config import DATA_DIR, PREDICTIONS_DIR, STUDENT_ID
 
 
-@pytest.mark.parametrize("dataset_name,expected_rows,t_start,t_end", [
-    ("A", 1000, 601, 1600),
-    ("B", 4000, 241, 4240),
-    ("C", 2000, 361, 2360),
-])
+@pytest.mark.parametrize(
+    "dataset_name,expected_rows,t_start,t_end",
+    [
+        ("A", 1000, 601, 1600),
+        ("B", 4000, 241, 4240),
+        ("C", 2000, 361, 2360),
+    ],
+)
 def test_prediction_file_integrity(dataset_name: str, expected_rows: int, t_start: int, t_end: int):
     """Verify formatting, ordering, row counts, and values of prediction CSVs."""
     filename = f"{STUDENT_ID}_predictions_{dataset_name}.csv"

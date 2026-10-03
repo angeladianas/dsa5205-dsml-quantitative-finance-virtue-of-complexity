@@ -2,9 +2,9 @@
 
 Generates the four core diagnostic figures from Kelly, Malamud, and Zhou (KMZ 2024):
 1. Figure 1: Out-of-Sample R^2_{paper} vs. Observed Complexity c_q
-2. Figure 2: Expected Timing Return E[R^\pi_{t+1}] vs. Observed Complexity c_q
+2. Figure 2: Expected Timing Return E[R^\\pi_{t+1}] vs. Observed Complexity c_q
 3. Figure 3: Sharpe Ratio SR vs. Observed Complexity c_q (Monotonic growth under z*)
-4. Figure 4: Parameter Euclidean Norm ||\hat{\beta}||_2^2 vs. Observed Complexity c_q
+4. Figure 4: Parameter Euclidean Norm ||\\hat{\beta}||_2^2 vs. Observed Complexity c_q
 
 Exports high-DPI (300 DPI) PNG and publication-grade vector PDF figures to output/figures/.
 """
@@ -12,7 +12,6 @@ Exports high-DPI (300 DPI) PNG and publication-grade vector PDF figures to outpu
 import argparse
 import sys
 from pathlib import Path
-from typing import Optional, Tuple
 
 # Ensure repository root is on sys.path
 REPO_ROOT = Path(__file__).resolve().parent.parent
@@ -28,25 +27,29 @@ from src.config import FIGURES_DIR, RESULTS_DIR
 
 def set_publication_style() -> None:
     """Set clean, publication-grade matplotlib plotting defaults."""
-    plt.style.use("seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default")
-    plt.rcParams.update({
-        "font.family": "serif",
-        "font.size": 11,
-        "axes.labelsize": 12,
-        "axes.titlesize": 13,
-        "xtick.labelsize": 10,
-        "ytick.labelsize": 10,
-        "legend.fontsize": 9,
-        "figure.titlesize": 14,
-        "figure.dpi": 300,
-        "lines.linewidth": 1.8,
-        "lines.markersize": 5,
-        "grid.alpha": 0.4,
-        "grid.linestyle": "--",
-    })
+    plt.style.use(
+        "seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default"
+    )
+    plt.rcParams.update(
+        {
+            "font.family": "serif",
+            "font.size": 11,
+            "axes.labelsize": 12,
+            "axes.titlesize": 13,
+            "xtick.labelsize": 10,
+            "ytick.labelsize": 10,
+            "legend.fontsize": 9,
+            "figure.titlesize": 14,
+            "figure.dpi": 300,
+            "lines.linewidth": 1.8,
+            "lines.markersize": 5,
+            "grid.alpha": 0.4,
+            "grid.linestyle": "--",
+        }
+    )
 
 
-def plot_task1_figures(summary_csv_path: Optional[Path] = None) -> None:
+def plot_task1_figures(summary_csv_path: Path | None = None) -> None:
     """Generate all Task 1 publication figures from cached summary CSV data.
 
     Args:
@@ -82,7 +85,7 @@ def plot_task1_figures(summary_csv_path: Optional[Path] = None) -> None:
         metric_col: str,
         ylabel: str,
         title: str,
-        ylim: Optional[Tuple[float, float]] = None,
+        ylim: tuple[float, float] | None = None,
         use_log_y: bool = False,
     ) -> None:
         # Plot each z curve
@@ -148,7 +151,10 @@ def plot_task1_figures(summary_csv_path: Optional[Path] = None) -> None:
         metric_col="r2_paper_mean",
         ylabel=r"Out-of-Sample $R^2_{\mathrm{paper}}$",
         title=r"Out-of-Sample $R^2_{\mathrm{paper}}$ vs. Observed Complexity $c_q$",
-        ylim=(-0.5, 0.25),  # Clipped view to clearly reveal all curves without z=0 explosion distorting scale
+        ylim=(
+            -0.5,
+            0.25,
+        ),  # Clipped view to clearly reveal all curves without z=0 explosion distorting scale
     )
     ax.legend(bbox_to_anchor=(1.04, 1), loc="upper left", frameon=True)
     plt.tight_layout()
@@ -255,15 +261,15 @@ def plot_task1_figures(summary_csv_path: Optional[Path] = None) -> None:
     fig.savefig(FIGURES_DIR / "task1_master_4panel.pdf", bbox_inches="tight")
     plt.close(fig)
 
-    print(f"================================================================")
-    print(f"Task 1 publication figures successfully generated in:")
+    print("================================================================")
+    print("Task 1 publication figures successfully generated in:")
     print(f"  {FIGURES_DIR}")
-    print(f"  - fig1_r2_vs_cq.png / .pdf")
-    print(f"  - fig2_expected_return_vs_cq.png / .pdf")
-    print(f"  - fig3_sharpe_vs_cq.png / .pdf")
-    print(f"  - fig4_param_norm_vs_cq.png / .pdf")
-    print(f"  - task1_master_4panel.png / .pdf")
-    print(f"================================================================")
+    print("  - fig1_r2_vs_cq.png / .pdf")
+    print("  - fig2_expected_return_vs_cq.png / .pdf")
+    print("  - fig3_sharpe_vs_cq.png / .pdf")
+    print("  - fig4_param_norm_vs_cq.png / .pdf")
+    print("  - task1_master_4panel.png / .pdf")
+    print("================================================================")
 
 
 if __name__ == "__main__":

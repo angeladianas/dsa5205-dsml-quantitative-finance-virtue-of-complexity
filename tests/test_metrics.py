@@ -1,15 +1,13 @@
 """Unit tests verifying mathematical correctness of src/metrics.py."""
 
 import numpy as np
-import pytest
 
 from src.metrics import (
-    compute_r2_paper,
-    compute_timing_returns,
-    compute_sharpe_uncentered,
-    compute_sharpe_var,
-    compute_param_norm,
     compute_optimal_shrinkage_theory,
+    compute_param_norm,
+    compute_r2_paper,
+    compute_sharpe_uncentered,
+    compute_timing_returns,
 )
 
 
@@ -46,14 +44,14 @@ def test_r2_paper_formula_equivalence():
     y = np.random.randn(1000)
     y_pred = 0.5 * y + 0.8 * np.random.randn(1000)
 
-    standard_mse_r2 = 1.0 - np.mean((y - y_pred) ** 2) / np.mean(y ** 2)
+    standard_mse_r2 = 1.0 - np.mean((y - y_pred) ** 2) / np.mean(y**2)
     kmz_r2 = compute_r2_paper(y, y_pred)
 
     assert np.isclose(standard_mse_r2, kmz_r2, atol=1e-12)
 
 
 def test_timing_returns():
-    """Verify timing portfolio returns R^\pi_{t+1} = \hat{R}_{t+1} * R_{t+1}."""
+    r"""Verify timing portfolio returns R^\pi_{t+1} = \hat{R}_{t+1} * R_{t+1}."""
     y = np.array([1.0, -2.0, 3.0])
     y_pred = np.array([0.5, -0.5, 2.0])
     expected = np.array([0.5, 1.0, 6.0])
