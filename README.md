@@ -94,8 +94,7 @@ Verified by `tests/test_predictions.py` (100% pass):
 - `A0327258X_predictions_C.csv`: 2,000 predictions ($t = 361 \dots 2360$), PCA-Ridge ($k = 10, \alpha = 0.1$).
 
 ### 4.2 Research Report
-- LaTeX source: `Scratch/05_LATEX_REPORT_STRUCTURE.tex`
-- Rendered PDF: `A0327258X_report.pdf` (compliant with IEEE/ACM formatting, 5–15 pages).
+- Rendered PDF: `A0327258X_report.pdf`.
 
 ---
 
