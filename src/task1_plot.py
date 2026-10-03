@@ -1,13 +1,4 @@
-"""Task 1: Publication-Grade Visualizations.
-
-Generates the four core diagnostic figures from Kelly, Malamud, and Zhou (KMZ 2024):
-1. Figure 1: Out-of-Sample R^2_{paper} vs. Observed Complexity c_q
-2. Figure 2: Expected Timing Return E[R^\\pi_{t+1}] vs. Observed Complexity c_q
-3. Figure 3: Sharpe Ratio SR vs. Observed Complexity c_q (Monotonic growth under z*)
-4. Figure 4: Parameter Euclidean Norm ||\\hat{\beta}||_2^2 vs. Observed Complexity c_q
-
-Exports high-DPI (300 DPI) PNG and publication-grade vector PDF figures to output/figures/.
-"""
+"""Task 1: Diagnostic figures for the misspecified Ridge simulation (KMZ 2024)."""
 
 import argparse
 import sys
@@ -26,7 +17,7 @@ from src.config import FIGURES_DIR, RESULTS_DIR
 
 
 def set_publication_style() -> None:
-    """Set clean, publication-grade matplotlib plotting defaults."""
+    """Set matplotlib styling defaults."""
     plt.style.use(
         "seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default"
     )

@@ -1,15 +1,4 @@
-"""Task 3: Empirical Model Selection, Internal Validation, and Prediction Generation.
-
-Analyzes Datasets A, B, and C:
-- Dataset A (c = 1.00): Solved via Tuned SVD Ridge (taming interpolation variance).
-- Dataset B (c = 10.00): Solved via Tuned Lasso (selecting top signals under small sample size T=240).
-- Dataset C (c = 5.00): Solved via PCA-Ridge (reducing dimension to top principal components).
-
-Generates exact submission files:
-- output/predictions/A0327258X_predictions_A.csv
-- output/predictions/A0327258X_predictions_B.csv
-- output/predictions/A0327258X_predictions_C.csv
-"""
+"""Task 3: Cross-validation model selection and test prediction generation for Datasets A, B, and C."""
 
 import sys
 from pathlib import Path

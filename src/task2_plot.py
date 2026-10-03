@@ -1,12 +1,4 @@
-"""Task 2: Comparative Publication-Grade Visualizations (Lasso vs. Ridge).
-
-Generates comparison figures contrasting the L1 coordinate sparsity of Lasso
-against the L2 rotational shrinkage of Ridge:
-1. Figure 5: Out-of-Sample Sharpe Ratio vs. c_q (Ridge vs. Lasso)
-2. Figure 6: Out-of-Sample R^2_{paper} vs. c_q (Ridge vs. Lasso)
-3. Figure 7: Active Feature Sparsity Fraction vs. c_q
-4. Master 3-Panel Comparison Figure for the report.
-"""
+"""Task 2: Comparison figures contrasting Lasso and Ridge across complexity c_q."""
 
 import sys
 from pathlib import Path
@@ -24,7 +16,7 @@ from src.config import FIGURES_DIR, RESULTS_DIR
 
 
 def set_publication_style() -> None:
-    """Set publication-quality plotting aesthetic."""
+    """Set matplotlib styling defaults."""
     plt.style.use(
         "seaborn-v0_8-whitegrid" if "seaborn-v0_8-whitegrid" in plt.style.available else "default"
     )

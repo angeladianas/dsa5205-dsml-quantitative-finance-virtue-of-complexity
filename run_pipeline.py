@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 """Master One-Click Execution Pipeline for DSA5205 Project 1.
 
-Author: A0327258X
-Project: The Virtue of Complexity in Return Prediction
-
 Usage:
     python run_pipeline.py --all           # Execute entire pipeline (Tasks 1-4 + test suite)
     python run_pipeline.py --task 1        # Execute Task 1 (Misspecified Ridge simulation)
@@ -83,7 +80,11 @@ def run_task_4() -> bool:
     """Execute Task 4: Dynamical decoupling experiment and visualization."""
     print_banner("Task 4: Dynamical Decoupling in Two-Layer Neural Network")
     cmd_dynamics = [sys.executable, "-m", "src.task4_dynamics"]
-    return run_command(cmd_dynamics, "Task 4 Neural Network Dynamical Simulation")
+    cmd_plot = [sys.executable, "-m", "src.task4_plot"]
+
+    if not run_command(cmd_dynamics, "Task 4 Neural Network Dynamical Simulation"):
+        return False
+    return run_command(cmd_plot, "Task 4 Figure Generation")
 
 
 def run_tests() -> bool:

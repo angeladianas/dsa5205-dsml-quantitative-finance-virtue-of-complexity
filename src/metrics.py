@@ -1,8 +1,4 @@
-"""Pure mathematical metric kernels for return prediction and trading performance.
-
-Follows Kelly, Malamud, and Zhou (KMZ 2024, Journal of Finance) definitions.
-All functions are pure, deterministic, and fully typed according to PEP 8 standards.
-"""
+"""Mathematical metric kernels for return prediction and trading performance (KMZ 2024)."""
 
 import numpy as np
 

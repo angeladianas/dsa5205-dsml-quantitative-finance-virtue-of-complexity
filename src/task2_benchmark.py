@@ -1,15 +1,4 @@
-"""Task 2: Alternative Model Benchmark (Lasso / L1 Sparsity vs. Ridge).
-
-Investigates how changing the inductive bias from L2 rotational shrinkage (Ridge)
-to L1 coordinate sparsity (Lasso) impacts out-of-sample predictability and trading performance
-on the exact same simulated DGP and splits as Task 1.
-
-Theoretical Focus:
-- The true DGP has dense, isotropic coefficients beta* with no exact zeros.
-- Lasso enforces coordinate sparsity, setting small signals to zero.
-- Demonstrates how truncation bias degrades out-of-sample R^2 and caps Sharpe ratio
-  across the complexity spectrum cq.
-"""
+"""Task 2: Evaluate Lasso (L1 coordinate sparsity) against Ridge on the Task 1 DGP."""
 
 import argparse
 import sys

@@ -1,8 +1,4 @@
-"""Numerically stable Ridge and Moore-Penrose pseudoinverse solvers via compact SVD.
-
-Strictly adheres to the "Never Invert X^T X" rule to ensure complete numerical
-stability near the interpolation threshold (c_q \approx 1) and under ridgeless OLS (z = 0).
-"""
+"""SVD-based Ridge and Moore-Penrose pseudoinverse solvers for numerical stability near c_q = 1."""
 
 from collections.abc import Sequence
 

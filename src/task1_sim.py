@@ -1,12 +1,4 @@
-"""Task 1: Misspecified Simulation with Ridge Regression.
-
-Reproduces key empirical results from Kelly, Malamud, and Zhou (KMZ 2024):
-1. The double descent / interpolation breakdown at c_q \approx 1 for ridgeless OLS (z = 0).
-2. The positivity of ridgeless Sharpe ratio despite negative R^2.
-3. The "Virtue of Complexity" under optimal ridge shrinkage z*(q) as c_q increases.
-
-Results are saved to transparent, human-readable CSV files in output/results/.
-"""
+"""Task 1: Monte Carlo simulation of misspecified Ridge regression (KMZ 2024)."""
 
 import argparse
 import sys

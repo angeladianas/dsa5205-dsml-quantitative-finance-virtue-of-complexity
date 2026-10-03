@@ -1,8 +1,4 @@
-"""Global project configuration and hyperparameters.
-
-Single source of truth for all paths, random seeds, and experimental grids.
-Strictly follows PEP 8 styling.
-"""
+"""Global project configuration, directory paths, and simulation parameters."""
 
 from pathlib import Path
 from typing import Any

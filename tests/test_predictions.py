@@ -1,12 +1,4 @@
-"""Automated verification suite for Task 3 submission prediction CSVs.
-
-Ensures strict compliance with grading criteria:
-- Exact filenames matching student ID: A0327258X_predictions_{A,B,C}.csv
-- Exact headers: 't,yhat'
-- Strictly increasing integer t matching public test files
-- Exact row counts (1000 for A, 4000 for B, 2000 for C)
-- Zero NaNs, Infs, or empty fields
-"""
+"""Verification suite for Task 3 submission prediction CSVs."""
 
 import numpy as np
 import pandas as pd
