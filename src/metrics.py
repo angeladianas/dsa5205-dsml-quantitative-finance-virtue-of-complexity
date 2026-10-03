@@ -20,6 +20,9 @@ def compute_r2_paper(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     y_t = np.asarray(y_true, dtype=np.float64).ravel()
     y_p = np.asarray(y_pred, dtype=np.float64).ravel()
 
+    if y_t.size == 0 or y_p.size == 0:
+        return 0.0
+
     denom = np.mean(y_t**2)
     if denom < 1e-14:
         return 0.0
@@ -59,6 +62,9 @@ def compute_sharpe_uncentered(r_pi: np.ndarray) -> float:
         Scalar uncentered Sharpe ratio. Returns 0.0 if second moment is near zero.
     """
     ret = np.asarray(r_pi, dtype=np.float64).ravel()
+    if ret.size == 0:
+        return 0.0
+
     mean_ret = np.mean(ret)
     second_moment = np.mean(ret**2)
 
@@ -81,10 +87,13 @@ def compute_sharpe_var(r_pi: np.ndarray) -> float:
         Scalar centered Sharpe ratio. Returns 0.0 if variance is near zero.
     """
     ret = np.asarray(r_pi, dtype=np.float64).ravel()
+    if ret.size < 2:
+        return 0.0
+
     mean_ret = np.mean(ret)
     std_ret = np.std(ret, ddof=1)
 
-    if std_ret < 1e-14:
+    if np.isnan(std_ret) or std_ret < 1e-14:
         return 0.0
 
     return float(mean_ret / std_ret)

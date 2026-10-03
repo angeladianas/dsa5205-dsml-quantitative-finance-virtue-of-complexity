@@ -106,7 +106,7 @@ def generate_task4_data(
     return X[:t_tr], y[:t_tr], X[t_tr:], y[t_tr:]
 
 
-def run_task4_experiment(epochs: int = 1000, lr: float = 0.08, m_hidden: int = 150) -> pd.DataFrame:
+def run_task4_experiment(epochs: int = 7500, lr: float = 0.08, m_hidden: int = 150) -> pd.DataFrame:
     """Train two-layer neural network across epochs and track dynamical decoupling."""
     print("================================================================")
     print("TASK 4: DYNAMICAL DECOUPLING EXPERIMENT (Montanari & Urbani 2025)")

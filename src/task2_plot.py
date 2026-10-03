@@ -1,4 +1,4 @@
-"""Task 2: Comparison figures contrasting Lasso and Ridge across complexity c_q."""
+"""Task 2: Comparison figures contrasting Lasso and Ridge across complexity cq."""
 
 import sys
 from pathlib import Path
@@ -64,7 +64,7 @@ def plot_task2_figures() -> None:
     lasso_colors = plt.cm.plasma(np.linspace(0.15, 0.85, len(target_alphas)))
 
     # -------------------------------------------------------------
-    # Figure 5: Sharpe Ratio vs. c_q (Ridge vs. Lasso)
+    # Figure 5: Sharpe Ratio vs. cq (Ridge vs. Lasso)
     # -------------------------------------------------------------
     fig, ax = plt.subplots(figsize=(8, 5.5))
 
@@ -107,9 +107,9 @@ def plot_task2_figures() -> None:
         color="#6C757D",
         linestyle=":",
         linewidth=1.5,
-        label="Interpolation ($c_q = 1$)",
+        label="Interpolation ($cq = 1$)",
     )
-    ax.set_xlabel(r"Observed Complexity $c_q = P_1 / T_{tr}$")
+    ax.set_xlabel(r"Observed Complexity $cq = P_1 / T_{tr}$")
     ax.set_ylabel(r"Timing Sharpe Ratio $\mathrm{SR}$ (KMZ Eq. 5)")
     ax.set_title(r"Sharpe Ratio: Optimal Ridge vs. Lasso Inductive Bias", fontweight="bold")
     ax.set_ylim(0.0, 0.075)
@@ -120,7 +120,7 @@ def plot_task2_figures() -> None:
     plt.close(fig)
 
     # -------------------------------------------------------------
-    # Figure 6: Out-of-Sample R^2 vs. c_q (Ridge vs. Lasso)
+    # Figure 6: Out-of-Sample R^2 vs. cq (Ridge vs. Lasso)
     # -------------------------------------------------------------
     fig, ax = plt.subplots(figsize=(8, 5.5))
     ax.plot(
@@ -150,9 +150,9 @@ def plot_task2_figures() -> None:
         color="#6C757D",
         linestyle=":",
         linewidth=1.5,
-        label="Interpolation ($c_q = 1$)",
+        label="Interpolation ($cq = 1$)",
     )
-    ax.set_xlabel(r"Observed Complexity $c_q = P_1 / T_{tr}$")
+    ax.set_xlabel(r"Observed Complexity $cq = P_1 / T_{tr}$")
     ax.set_ylabel(r"Out-of-Sample $R^2_{\mathrm{paper}}$")
     ax.set_title(r"Out-of-Sample $R^2_{\mathrm{paper}}$: Ridge vs. Lasso", fontweight="bold")
     ax.set_ylim(-0.4, 0.05)
@@ -163,7 +163,7 @@ def plot_task2_figures() -> None:
     plt.close(fig)
 
     # -------------------------------------------------------------
-    # Figure 7: Sparsity Ratio vs. c_q
+    # Figure 7: Sparsity Ratio vs. cq
     # -------------------------------------------------------------
     fig, ax = plt.subplots(figsize=(8, 5.5))
     for idx, a in enumerate(target_alphas):
@@ -181,9 +181,9 @@ def plot_task2_figures() -> None:
         color="#6C757D",
         linestyle=":",
         linewidth=1.5,
-        label="Interpolation ($c_q = 1$)",
+        label="Interpolation ($cq = 1$)",
     )
-    ax.set_xlabel(r"Observed Complexity $c_q = P_1 / T_{tr}$")
+    ax.set_xlabel(r"Observed Complexity $cq = P_1 / T_{tr}$")
     ax.set_ylabel("Non-Zero Features (%)")
     ax.set_title(
         "Lasso Sparsity: Percentage of Active Features vs. Complexity",
@@ -231,7 +231,7 @@ def plot_task2_figures() -> None:
             linestyle="-.",
         )
     axes[0].axvline(1.0, color="#6C757D", linestyle=":")
-    axes[0].set_xlabel(r"Observed Complexity $c_q$")
+    axes[0].set_xlabel(r"Observed Complexity $cq$")
     axes[0].set_ylabel("Sharpe Ratio")
     axes[0].set_title("(a) Sharpe Ratio: Ridge vs. Lasso", fontweight="bold")
     axes[0].set_ylim(0.0, 0.075)
@@ -255,7 +255,7 @@ def plot_task2_figures() -> None:
             linestyle="-.",
         )
     axes[1].axvline(1.0, color="#6C757D", linestyle=":")
-    axes[1].set_xlabel(r"Observed Complexity $c_q$")
+    axes[1].set_xlabel(r"Observed Complexity $cq$")
     axes[1].set_ylabel(r"Out-of-Sample $R^2_{\mathrm{paper}}$")
     axes[1].set_title(r"(b) Out-of-Sample $R^2_{\mathrm{paper}}$", fontweight="bold")
     axes[1].set_ylim(-0.4, 0.05)
@@ -271,7 +271,7 @@ def plot_task2_figures() -> None:
             marker="s",
         )
     axes[2].axvline(1.0, color="#6C757D", linestyle=":")
-    axes[2].set_xlabel(r"Observed Complexity $c_q$")
+    axes[2].set_xlabel(r"Observed Complexity $cq$")
     axes[2].set_ylabel("Active Features (%)")
     axes[2].set_title("(c) Lasso Active Features (%)", fontweight="bold")
 

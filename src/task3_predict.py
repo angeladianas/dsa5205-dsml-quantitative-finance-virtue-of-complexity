@@ -52,9 +52,10 @@ def evaluate_dataset_cv(
 
     scores = {m: {"sharpe": [], "r2": []} for m in models}
 
-    for fold in range(n_splits):
+    for fold in range(1, n_splits):
+        # Strict forward-chaining: train strictly on past folds [0 .. fold*fold_size), validate on future fold
+        tr_idx = np.arange(0, fold * fold_size)
         val_idx = np.arange(fold * fold_size, (fold + 1) * fold_size)
-        tr_idx = np.setdiff1d(np.arange(T_tr), val_idx)
 
         X_tr, y_tr = X[tr_idx], y[tr_idx]
         X_val, y_val = X[val_idx], y[val_idx]

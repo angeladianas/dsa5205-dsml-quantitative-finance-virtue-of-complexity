@@ -97,7 +97,7 @@ def run_single_simulation(
         c_dgp: True DGP complexity c = P / T_{tr}.
         b_star: True signal strength.
         sigma_eps: Innovation noise std.
-        cq_grid: Observed complexity values c_q = P_1 / T_{tr}.
+        cq_grid: Observed complexity values cq = P_1 / T_{tr}.
         z_grid: Ridge shrinkage values z.
         rng: Random generator instance.
 

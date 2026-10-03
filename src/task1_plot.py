@@ -122,10 +122,10 @@ def plot_task1_figures(summary_csv_path: Path | None = None) -> None:
             color="#6C757D",
             linestyle=":",
             linewidth=1.5,
-            label="Interpolation ($c_q = 1$)",
+            label="Interpolation ($cq = 1$)",
         )
 
-        ax.set_xlabel(r"Observed Complexity $c_q = P_1 / T_{tr}$")
+        ax.set_xlabel(r"Observed Complexity $cq = P_1 / T_{tr}$")
         ax.set_ylabel(ylabel)
         ax.set_title(title, fontweight="bold")
         if use_log_y:
@@ -134,14 +134,14 @@ def plot_task1_figures(summary_csv_path: Path | None = None) -> None:
             ax.set_ylim(ylim)
 
     # -------------------------------------------------------------
-    # Figure 1: Out-of-Sample R^2_{paper} vs. c_q
+    # Figure 1: Out-of-Sample R^2_{paper} vs. cq
     # -------------------------------------------------------------
     fig, ax = plt.subplots(figsize=(8, 5.5))
     plot_metric_on_ax(
         ax=ax,
         metric_col="r2_paper_mean",
         ylabel=r"Out-of-Sample $R^2_{\mathrm{paper}}$",
-        title=r"Out-of-Sample $R^2_{\mathrm{paper}}$ vs. Observed Complexity $c_q$",
+        title=r"Out-of-Sample $R^2_{\mathrm{paper}}$ vs. Observed Complexity $cq$",
         ylim=(
             -0.5,
             0.25,
@@ -154,14 +154,14 @@ def plot_task1_figures(summary_csv_path: Path | None = None) -> None:
     plt.close(fig)
 
     # -------------------------------------------------------------
-    # Figure 2: Expected Timing Return vs. c_q
+    # Figure 2: Expected Timing Return vs. cq
     # -------------------------------------------------------------
     fig, ax = plt.subplots(figsize=(8, 5.5))
     plot_metric_on_ax(
         ax=ax,
         metric_col="expected_return_mean",
         ylabel=r"Expected Timing Return $\mathbb{E}[R^\pi_{t+1}]$",
-        title=r"Expected Timing Return vs. Observed Complexity $c_q$",
+        title=r"Expected Timing Return vs. Observed Complexity $cq$",
     )
     ax.legend(bbox_to_anchor=(1.04, 1), loc="upper left", frameon=True)
     plt.tight_layout()
@@ -170,14 +170,14 @@ def plot_task1_figures(summary_csv_path: Path | None = None) -> None:
     plt.close(fig)
 
     # -------------------------------------------------------------
-    # Figure 3: Sharpe Ratio vs. c_q (The Virtue of Complexity)
+    # Figure 3: Sharpe Ratio vs. cq (The Virtue of Complexity)
     # -------------------------------------------------------------
     fig, ax = plt.subplots(figsize=(8, 5.5))
     plot_metric_on_ax(
         ax=ax,
         metric_col="sharpe_mean",
         ylabel=r"Timing Sharpe Ratio $\mathrm{SR}$ (KMZ Eq. 5)",
-        title=r"Timing Sharpe Ratio vs. Observed Complexity $c_q$",
+        title=r"Timing Sharpe Ratio vs. Observed Complexity $cq$",
         ylim=(0.0, 0.08),
     )
     ax.legend(bbox_to_anchor=(1.04, 1), loc="upper left", frameon=True)
@@ -187,14 +187,14 @@ def plot_task1_figures(summary_csv_path: Path | None = None) -> None:
     plt.close(fig)
 
     # -------------------------------------------------------------
-    # Figure 4: Parameter Euclidean Norm ||beta||^2 vs. c_q (Log Scale)
+    # Figure 4: Parameter Euclidean Norm ||beta||^2 vs. cq (Log Scale)
     # -------------------------------------------------------------
     fig, ax = plt.subplots(figsize=(8, 5.5))
     plot_metric_on_ax(
         ax=ax,
         metric_col="param_norm_mean",
         ylabel=r"Parameter Size $\|\hat{\beta}(z)\|_2^2$ (Log Scale)",
-        title=r"Parameter Euclidean Norm vs. Observed Complexity $c_q$",
+        title=r"Parameter Euclidean Norm vs. Observed Complexity $cq$",
         use_log_y=True,
     )
     ax.legend(bbox_to_anchor=(1.04, 1), loc="upper left", frameon=True)

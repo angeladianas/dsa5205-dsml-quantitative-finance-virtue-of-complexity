@@ -1,4 +1,4 @@
-"""SVD-based Ridge and Moore-Penrose pseudoinverse solvers for numerical stability near c_q = 1."""
+"""SVD-based Ridge and Moore-Penrose pseudoinverse solvers for numerical stability near cq = 1."""
 
 from collections.abc import Sequence
 
@@ -61,8 +61,9 @@ def solve_ridge_svd(
 
     # Compute scalar shrinkage weights d_i for each singular value s_i
     if z == 0.0:
-        # Exact Moore-Penrose minimum-norm pseudoinverse
-        filter_weights = np.where(s > rcond, 1.0 / s, 0.0)
+        # Exact Moore-Penrose minimum-norm pseudoinverse with scale-invariant relative threshold
+        cutoff = rcond * float(np.max(s)) if s.size > 0 and np.max(s) > 0 else rcond
+        filter_weights = np.where(s > cutoff, 1.0 / s, 0.0)
     else:
         # Ridge shrinkage weights: s_i / (s_i^2 + z * T_tr)
         filter_weights = s / (s**2 + z * float(t_tr))

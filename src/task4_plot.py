@@ -124,10 +124,10 @@ def plot_task4_dynamics(df: pd.DataFrame | None = None) -> None:
     ax1.legend(lines1 + lines2, labels1 + labels2, loc="upper right", frameon=True, fontsize=9)
 
     plt.title(
-        r"\textbf{Dynamical Decoupling in Low-SNR Financial Return Prediction}"
-        + "\n"
-        + r"Feature Learning vs. Overfitting (Montanari \& Urbani 2025)",
+        "Dynamical Decoupling in Low-SNR Financial Return Prediction\n"
+        "Feature Learning vs. Overfitting (Montanari & Urbani 2025)",
         fontsize=13,
+        fontweight="bold",
         pad=12,
     )
 
