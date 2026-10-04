@@ -14,7 +14,14 @@ import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.linear_model import Lasso, Ridge
 
-from src.config import DATA_DIR, PREDICTIONS_DIR, PROJECT_ROOT, RESULTS_DIR, STUDENT_ID
+from src.config import (
+    DATA_DIR,
+    GLOBAL_SEED,
+    PREDICTIONS_DIR,
+    PROJECT_ROOT,
+    RESULTS_DIR,
+    STUDENT_ID,
+)
 from src.metrics import (
     compute_r2_paper,
     compute_sharpe_uncentered,
@@ -105,7 +112,7 @@ def evaluate_dataset_cv(
                 y_pred = clf.predict(X_val)
             elif cfg["type"] == "pca_ridge":
                 n_comp = min(cfg["k"], len_tr - 1)
-                pca = PCA(n_components=n_comp)
+                pca = PCA(n_components=n_comp, svd_solver="full", random_state=GLOBAL_SEED)
                 X_tr_pca = pca.fit_transform(X_tr)
                 X_val_pca = pca.transform(X_val)
                 clf = Ridge(alpha=cfg["alpha"] * len_tr, fit_intercept=False)
@@ -202,7 +209,7 @@ def generate_task3_predictions() -> dict[str, Path]:
         elif cfg["model"] == "PCA_Ridge":
             k_val = cfg["params"]["k"]
             alpha_val = cfg["params"]["alpha"]
-            pca = PCA(n_components=k_val)
+            pca = PCA(n_components=k_val, svd_solver="full", random_state=GLOBAL_SEED)
             X_tr_pca = pca.fit_transform(X_tr)
             X_te_pca = pca.transform(X_te)
             model = Ridge(alpha=alpha_val * T_tr, fit_intercept=False)
