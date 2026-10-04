@@ -18,9 +18,12 @@ htmlcov/
 .DS_Store
 Thumbs.db
 
-# Large dataset files exceeding GitHub 100MB limit
-data/pairB_test_features.csv
-
 # Output caches (can be regenerated via pipeline)
 output/results/
 output/figures/
+
+# Ignore raw uncompressed CSVs
+data/*.csv
+
+# Allow tracked compressed datasets
+!data/*.csv.gz
