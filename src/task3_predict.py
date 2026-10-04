@@ -9,6 +9,7 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 import zipfile
+
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
@@ -52,7 +53,11 @@ def load_data_csv(filename: str | Path, **kwargs) -> pd.DataFrame:
         if cand.is_file():
             return pd.read_csv(cand, **kwargs)
 
-    for zip_candidate in [DATA_DIR / "data.zip", PROJECT_ROOT / "data.zip", DATA_DIR.with_suffix(".zip")]:
+    for zip_candidate in [
+        DATA_DIR / "data.zip",
+        PROJECT_ROOT / "data.zip",
+        DATA_DIR.with_suffix(".zip"),
+    ]:
         if zip_candidate.is_file():
             with zipfile.ZipFile(zip_candidate, "r") as zf:
                 namelist = zf.namelist()

@@ -54,6 +54,7 @@ def test_load_data_csv_compressed_formats(tmp_path, monkeypatch):
     """Verify that load_data_csv transparently reads .csv, .csv.gz, and .zip files."""
     import gzip
     import zipfile
+
     import src.task3_predict as t3
 
     # Point DATA_DIR to tmp_path for isolated unit test
@@ -87,4 +88,3 @@ def test_load_data_csv_compressed_formats(tmp_path, monkeypatch):
     # 4. Test missing file error
     with pytest.raises(FileNotFoundError):
         t3.load_data_csv("nonexistent_dataset.csv")
-
