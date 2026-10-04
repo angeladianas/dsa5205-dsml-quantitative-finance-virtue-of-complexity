@@ -8,12 +8,21 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+import zipfile
+
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
 from sklearn.linear_model import Lasso, Ridge
 
-from src.config import DATA_DIR, PREDICTIONS_DIR, RESULTS_DIR, STUDENT_ID
+from src.config import (
+    DATA_DIR,
+    GLOBAL_SEED,
+    PREDICTIONS_DIR,
+    PROJECT_ROOT,
+    RESULTS_DIR,
+    STUDENT_ID,
+)
 from src.metrics import (
     compute_r2_paper,
     compute_sharpe_uncentered,
@@ -21,16 +30,52 @@ from src.metrics import (
 )
 
 
+def load_data_csv(filename: str | Path, **kwargs) -> pd.DataFrame:
+    """Load a dataset from DATA_DIR, automatically supporting .csv, .csv.gz, .csv.zip, .zip,
+    or reading directly from an archive like data.zip without manual extraction.
+    """
+    path = Path(filename)
+    stem = path.stem
+    if stem.endswith(".csv"):
+        stem = Path(stem).stem
+
+    candidates = [
+        DATA_DIR / path.name,
+        DATA_DIR / f"{stem}.csv",
+        DATA_DIR / f"{stem}.csv.gz",
+        DATA_DIR / f"{stem}.csv.zip",
+        DATA_DIR / f"{stem}.zip",
+        DATA_DIR / f"{stem}.csv.bz2",
+        DATA_DIR / f"{stem}.csv.xz",
+    ]
+
+    for cand in candidates:
+        if cand.is_file():
+            return pd.read_csv(cand, **kwargs)
+
+    for zip_candidate in [
+        DATA_DIR / "data.zip",
+        PROJECT_ROOT / "data.zip",
+        DATA_DIR.with_suffix(".zip"),
+    ]:
+        if zip_candidate.is_file():
+            with zipfile.ZipFile(zip_candidate, "r") as zf:
+                namelist = zf.namelist()
+                for target in [f"{stem}.csv", f"data/{stem}.csv", path.name, f"data/{path.name}"]:
+                    if target in namelist:
+                        with zf.open(target) as f:
+                            return pd.read_csv(f, **kwargs)
+
+    raise FileNotFoundError(
+        f"Dataset file '{filename}' not found in {DATA_DIR}. "
+        f"Checked extensions [.csv, .csv.gz, .csv.zip, .zip, .csv.bz2] and archive data.zip."
+    )
+
+
 def load_dataset_pair(name: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Load train and test CSVs for a given dataset letter ('A', 'B', or 'C')."""
-    train_path = DATA_DIR / f"pair{name}_train.csv"
-    test_path = DATA_DIR / f"pair{name}_test_features.csv"
-
-    if not train_path.exists() or not test_path.exists():
-        raise FileNotFoundError(f"Dataset {name} files missing in {DATA_DIR}")
-
-    df_train = pd.read_csv(train_path)
-    df_test = pd.read_csv(test_path)
+    df_train = load_data_csv(f"pair{name}_train.csv")
+    df_test = load_data_csv(f"pair{name}_test_features.csv")
     return df_train, df_test
 
 
@@ -72,7 +117,7 @@ def evaluate_dataset_cv(
                 y_pred = clf.predict(X_val)
             elif cfg["type"] == "pca_ridge":
                 n_comp = min(cfg["k"], len_tr - 1)
-                pca = PCA(n_components=n_comp)
+                pca = PCA(n_components=n_comp, svd_solver="full", random_state=GLOBAL_SEED)
                 X_tr_pca = pca.fit_transform(X_tr)
                 X_val_pca = pca.transform(X_val)
                 clf = Ridge(alpha=cfg["alpha"] * len_tr, fit_intercept=False)
@@ -169,7 +214,7 @@ def generate_task3_predictions() -> dict[str, Path]:
         elif cfg["model"] == "PCA_Ridge":
             k_val = cfg["params"]["k"]
             alpha_val = cfg["params"]["alpha"]
-            pca = PCA(n_components=k_val)
+            pca = PCA(n_components=k_val, svd_solver="full", random_state=GLOBAL_SEED)
             X_tr_pca = pca.fit_transform(X_tr)
             X_te_pca = pca.transform(X_te)
             model = Ridge(alpha=alpha_val * T_tr, fit_intercept=False)
